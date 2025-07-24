@@ -1,0 +1,138 @@
+# 🎯 AI Marketing Agent 2025 Advanced - Enterprise Dockerfile
+# Multi-stage build za optimizovanu production sliku sa cutting-edge AI technologies
+
+# ===== STAGE 1: Base with Python and System Dependencies =====
+FROM python:3.12-slim as base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies za advanced AI capabilities
+RUN apt-get update && apt-get install -y \
+    # Core build tools
+    build-essential \
+    cmake \
+    g++ \
+    gcc \
+    git \
+    pkg-config \
+    # Advanced computer vision dependencies
+    libopencv-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libv4l-dev \
+    libxvidcore-dev \
+    libx264-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libtiff-dev \
+    # Graphics and 3D processing
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    # Audio processing za biometric analysis
+    libasound2-dev \
+    portaudio19-dev \
+    # Quantum computing simulation dependencies
+    libffi-dev \
+    libssl-dev \
+    # Neural network acceleration
+    libblas-dev \
+    liblapack-dev \
+    libatlas-base-dev \
+    gfortran \
+    # Database drivers
+    libpq-dev \
+    # Cleanup
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# ===== STAGE 2: AI Dependencies Installation =====
+FROM base as ai-deps
+
+# Create non-root user za security
+RUN groupadd -r aimarketing && useradd -r -g aimarketing -d /app -s /bin/bash -c "AI Marketing User" aimarketing
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first za better caching
+COPY requirements_2025_advanced.txt .
+
+# Install Python dependencies with optimizations
+RUN pip install --upgrade pip setuptools wheel && \
+    # Install PyTorch with CPU optimization (adjust for GPU if needed)
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
+    # Install remaining requirements
+    pip install -r requirements_2025_advanced.txt && \
+    # Cleanup pip cache
+    pip cache purge
+
+# ===== STAGE 3: Application Layer =====
+FROM ai-deps as app
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/cache /app/models && \
+    chown -R aimarketing:aimarketing /app
+
+# Switch to non-root user
+USER aimarketing
+
+# ===== STAGE 4: Production Optimizations =====
+FROM app as production
+
+# Install production-specific optimizations
+USER root
+
+# Install NVIDIA tools if GPU is available (optional)
+# RUN apt-get update && apt-get install -y nvidia-cuda-toolkit && apt-get clean
+
+# Performance optimizations
+RUN echo 'export OMP_NUM_THREADS=4' >> /etc/environment && \
+    echo 'export MKL_NUM_THREADS=4' >> /etc/environment && \
+    echo 'export NUMEXPR_NUM_THREADS=4' >> /etc/environment
+
+# Switch back to non-root user
+USER aimarketing
+
+# Health check script
+COPY --chown=aimarketing:aimarketing healthcheck.py /app/
+
+# Environment variables za production
+ENV PYTHONPATH=/app \
+    ENVIRONMENT=production \
+    PORT=8001 \
+    HOST=0.0.0.0 \
+    WORKERS=4 \
+    # AI Optimizations
+    OMP_NUM_THREADS=4 \
+    MKL_NUM_THREADS=4 \
+    NUMEXPR_NUM_THREADS=4 \
+    TORCH_NUM_THREADS=4 \
+    # Quantum simulation optimization
+    QISKIT_PARALLEL=TRUE \
+    # Neural network optimization
+    PYTORCH_JIT=1 \
+    # Memory management
+    MALLOC_ARENA_MAX=2
+
+# Expose port
+EXPOSE 8001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=40s --retries=3 \
+    CMD python healthcheck.py
+
+# Default command - optimized za enterprise deployment
+CMD ["gunicorn", "--bind", "0.0.0.0:8001", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--worker-connections", "1000", "--max-requests", "1000", "--max-requests-jitter", "100", "--preload", "--timeout", "120", "main_2025_advanced:app"]

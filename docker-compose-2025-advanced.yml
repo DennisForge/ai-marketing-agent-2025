@@ -1,0 +1,398 @@
+# 🎯 AI Marketing Agent 2025 Advanced - Enterprise Docker Compose
+# Full-stack deployment sa cutting-edge AI infrastructure
+
+version: '3.8'
+
+# Shared networks
+networks:
+  ai-marketing-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Shared volumes
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  ai_models:
+    driver: local
+  quantum_cache:
+    driver: local
+  neural_weights:
+    driver: local
+
+services:
+  # ===== CORE AI MARKETING AGENT =====
+  ai-marketing-agent-advanced:
+    build:
+      context: .
+      dockerfile: Dockerfile_2025_advanced
+      target: production
+    container_name: ai-marketing-agent-2025-advanced
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      # Application settings
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - PORT=8001
+      - WORKERS=4
+      
+      # AI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      
+      # Neural Optimization Settings
+      - NEURAL_LEARNING_RATE=0.001
+      - NEURAL_BATCH_SIZE=32
+      - NEURAL_EPOCHS=100
+      
+      # Quantum Computing Settings
+      - QUANTUM_BACKEND=qasm_simulator
+      - QUANTUM_SHOTS=1024
+      - QUANTUM_ENTANGLEMENT_DEPTH=5
+      
+      # Biometric Analysis Settings
+      - BIOMETRIC_SAMPLING_RATE=100
+      - EMOTION_MODEL_VERSION=2025.1
+      
+      # Database connections
+      - DATABASE_URL=postgresql://aimarketing:secure_password@postgres:5432/ai_marketing_db
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      
+      # External services
+      - FACEBOOK_APP_ID=${FACEBOOK_APP_ID}
+      - FACEBOOK_APP_SECRET=${FACEBOOK_APP_SECRET}
+      - GOOGLE_ADS_CLIENT_ID=${GOOGLE_ADS_CLIENT_ID}
+      - GOOGLE_ADS_CLIENT_SECRET=${GOOGLE_ADS_CLIENT_SECRET}
+      - LINKEDIN_CLIENT_ID=${LINKEDIN_CLIENT_ID}
+      - LINKEDIN_CLIENT_SECRET=${LINKEDIN_CLIENT_SECRET}
+      
+      # Security settings
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      
+      # Monitoring
+      - SENTRY_DSN=${SENTRY_DSN}
+      - PROMETHEUS_ENDPOINT=http://prometheus:9090
+      
+      # Edge AI settings
+      - EDGE_AI_ENABLED=true
+      - EDGE_NODES=us-east,us-west,eu-central
+      
+      # Blockchain settings
+      - BLOCKCHAIN_NETWORK=ethereum
+      - WEB3_PROVIDER_URL=${WEB3_PROVIDER_URL}
+      
+    volumes:
+      - ai_models:/app/models
+      - neural_weights:/app/neural_weights
+      - quantum_cache:/app/quantum_cache
+      - ./logs:/app/logs
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - postgres
+      - redis
+      - prometheus
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===== DATABASE SERVICES =====
+  
+  # PostgreSQL za structured data
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-marketing-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=ai_marketing_db
+      - POSTGRES_USER=aimarketing
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - ai-marketing-network
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.max=10000
+      -c pg_stat_statements.track=all
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c work_mem=4MB
+
+  # Redis za caching i real-time data
+  redis:
+    image: redis:7-alpine
+    container_name: ai-marketing-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-marketing-network
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --timeout 300
+      --tcp-keepalive 60
+
+  # ===== VECTOR DATABASES =====
+  
+  # ChromaDB za vector search
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: ai-marketing-chromadb
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma_data:/chroma/chroma
+    networks:
+      - ai-marketing-network
+    environment:
+      - CHROMA_HOST=0.0.0.0
+      - CHROMA_PORT=8000
+
+  # ===== MONITORING & OBSERVABILITY =====
+  
+  # Prometheus za metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-marketing-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ai-marketing-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana za visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai-marketing-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - ai-marketing-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+
+  # ===== MESSAGE QUEUE & TASK PROCESSING =====
+  
+  # Celery worker za background tasks
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile_2025_advanced
+      target: production
+    container_name: ai-marketing-celery-worker
+    restart: unless-stopped
+    command: celery -A main_2025_advanced worker --loglevel=info --concurrency=4
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - CELERY_RESULT_BACKEND=redis://redis:6379/3
+      - DATABASE_URL=postgresql://aimarketing:secure_password@postgres:5432/ai_marketing_db
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ai_models:/app/models
+      - neural_weights:/app/neural_weights
+      - ./logs:/app/logs
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - redis
+      - postgres
+
+  # Celery Beat za scheduled tasks
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile_2025_advanced
+      target: production
+    container_name: ai-marketing-celery-beat
+    restart: unless-stopped
+    command: celery -A main_2025_advanced beat --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/2
+      - CELERY_RESULT_BACKEND=redis://redis:6379/3
+      - DATABASE_URL=postgresql://aimarketing:secure_password@postgres:5432/ai_marketing_db
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - redis
+      - postgres
+
+  # ===== REVERSE PROXY & LOAD BALANCER =====
+  
+  # Nginx za load balancing i static content
+  nginx:
+    image: nginx:alpine
+    container_name: ai-marketing-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl_certs:/etc/nginx/ssl
+      - ./static:/usr/share/nginx/html/static
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - ai-marketing-agent-advanced
+
+  # ===== MACHINE LEARNING SERVICES =====
+  
+  # MLflow za model management
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: ai-marketing-mlflow
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=postgresql://aimarketing:secure_password@postgres:5432/mlflow_db
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    volumes:
+      - ./mlflow_artifacts:/mlflow/artifacts
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - postgres
+
+  # ===== SECURITY & BACKUP =====
+  
+  # Database backup service
+  postgres-backup:
+    image: postgres:16-alpine
+    container_name: ai-marketing-backup
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=ai_marketing_db
+      - POSTGRES_USER=aimarketing
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_HOST=postgres
+    volumes:
+      - ./backups:/backups
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - postgres
+    command: >
+      sh -c "
+        while true; do
+          sleep 86400;
+          pg_dump -h postgres -U aimarketing -d ai_marketing_db > /backups/backup_$(date +%Y%m%d_%H%M%S).sql;
+          find /backups -name '*.sql' -mtime +7 -delete;
+        done
+      "
+
+  # ===== DEVELOPMENT & TESTING SERVICES =====
+  
+  # Jupyter Lab za data science & research
+  jupyter:
+    image: jupyter/tensorflow-notebook:latest
+    container_name: ai-marketing-jupyter
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=aimarketing2025
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ai_models:/home/jovyan/models
+    networks:
+      - ai-marketing-network
+    profiles:
+      - development
+
+  # ===== LOG AGGREGATION =====
+  
+  # ELK Stack za centralized logging (optional)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: ai-marketing-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ai-marketing-network
+    profiles:
+      - logging
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: ai-marketing-logstash
+    restart: unless-stopped
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logs:/usr/share/logstash/logs
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - elasticsearch
+    profiles:
+      - logging
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: ai-marketing-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - ai-marketing-network
+    depends_on:
+      - elasticsearch
+    profiles:
+      - logging
