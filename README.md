@@ -258,6 +258,32 @@ When you call the campaign generation API, you get comprehensive strategy like t
 }
 ```
 
+### 🎨 **Visual Campaign Strategy Dashboard**
+
+<div align="center">
+
+| 📊 **Campaign Metrics** | 💰 **Budget Breakdown** | 🎯 **Performance Forecast** |
+|-------------------------|-------------------------|----------------------------|
+| **Campaign**: E-commerce Fashion Q1 2025 | **Facebook Ads**: 40% ($10,000) | **Estimated Reach**: 150,000 users |
+| **Timeline**: 90 days | **Google Ads**: 35% ($8,750) | **Predicted Clicks**: 7,500 |
+| **Objective**: Sales Conversion | **Instagram Ads**: 20% ($5,000) | **Expected Conversions**: 375 |
+| **Target**: Female 25-45 | **Pinterest Ads**: 5% ($1,250) | **Projected ROI**: 420% 🚀 |
+
+</div>
+
+#### 🕒 **Optimal Posting Schedule**
+```
+📅 WEEKDAYS: 6PM-9PM (Peak Engagement)
+📅 WEEKENDS: 10AM-2PM (Shopping Hours)  
+🎯 PLATFORMS: Instagram → Facebook → Pinterest
+```
+
+#### 🎨 **AI-Generated Creative Suggestions**
+- **👗 Fashion Showcase**: Seasonal trend highlights
+- **💫 Lifestyle Integration**: Real customer scenarios  
+- **🛍️ Shopping Experience**: Interactive product demos
+- **📱 Mobile-First Design**: Optimized for social feeds
+
 ### � **Live Dashboard Access**
 
 Once deployed, access your **professional marketing command center**:
