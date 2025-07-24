@@ -208,6 +208,54 @@ curl -X POST "http://localhost:8001/api/v2/ar-vr-campaign" \
     "campaign_objectives": ["brand_awareness", "test_drive_bookings"],
     "immersion_level": "hybrid"
   }'
+
+# 🎯 Campaign Strategy Generation Demo
+curl -X POST "http://localhost:8001/api/v2/generate-campaign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product": "E-commerce Fashion",
+    "target_audience": "Female 25-45",
+    "budget": 25000,
+    "objectives": ["Sales Conversion", "Brand Awareness"]
+  }'
+```
+
+### 🎯 **Real Campaign Generation Response Example**
+
+When you call the campaign generation API, you get comprehensive strategy like this:
+
+```json
+{
+  "campaign_strategy": {
+    "campaign_overview": {
+      "name": "E-commerce Fashion Q1 2025",
+      "objective": "Sales Conversion",
+      "budget": 25000,
+      "timeline": "90 days"
+    },
+    "target_audience": {
+      "primary_demographics": {
+        "age_range": "25-45",
+        "gender": "Female",
+        "interests": ["fashion", "online shopping", "style"]
+      },
+      "platform_preferences": ["Instagram", "Facebook", "Pinterest"],
+      "optimal_timing": "6PM-9PM weekdays, 10AM-2PM weekends"
+    },
+    "budget_allocation": {
+      "facebook_ads": "40%",
+      "google_ads": "35%", 
+      "instagram_ads": "20%",
+      "pinterest_ads": "5%"
+    },
+    "performance_predictions": {
+      "estimated_reach": 150000,
+      "predicted_clicks": 7500,
+      "expected_conversions": 375,
+      "projected_roi": "420%"
+    }
+  }
+}
 ```
 
 ### � **Live Dashboard Access**
